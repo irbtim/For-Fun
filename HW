@@ -1,0 +1,89 @@
+---
+title: "HW"
+output: html_document
+lang: russian
+---
+```{r, include=FALSE}
+library("memisc")
+library("dplyr")
+library("psych") 
+library("lmtest")
+library("sjPlot")
+library("sgof")
+library("ggplot2")
+library("foreign")
+library("car")
+library("hexbin")
+library("rlms")
+library(pander)
+library(knitr)
+library(vcd)
+library(sandwich)
+library(broom)
+df <- read.rlms("r22i_os25a.sav")
+df <- dplyr::select(df, rj13.2, rh5, rh6, r_diplom, rj262, rj6)
+df$income<-as.integer(df$rj13.2)
+df$education <- as.integer(df$r_diplom)
+df$language<-as.integer(df$rj262)
+df$subordination<-as.integer(df$rj6)
+df$educ.incomplete <- as.integer(df$education==1|df$education==2|df$education==3)
+df$educ.middle<-as.integer(df$education==4)
+df$educ.spmiddle<-as.integer(df$education==5)
+df$educ.high<-as.integer(df$education==6)
+df$female<-as.integer(df$rh5==2)
+df$male<-as.integer(df$rh5==1)
+df$age<-as.integer(2013-df$rh6)
+df$language.fluent<-as.integer(df$language==1)
+df$language.intermediate<-as.integer(df$language==2)
+df$language.pre<-as.integer(df$language==3)
+df$subordination.yes<-as.integer(df$subordination==1)
+df$subordination.no<-as.integer(df$subordination==2)
+df<-na.omit(df)
+s<-describe(df)
+s
+opts_chunk$set(echo=FALSE, message=FALSE)
+
+```
+
+```{r}
+model<-lm(data=df, income~age+male+educ.middle+educ.spmiddle+
+ educ.high+language.intermediate+language.fluent+subordination.yes)
+cc<-summary(model)
+cc
+
+```
+1) Согласно заданию была построенна модель зависимости Дохода на: возраст, пол, образование, знание языков есть ли подчиненные у опрошенного.
+Так же в таблице выше, показаны минимальное значение переменной, максимальное значение, среднее значение, медиану и стандартное ошибки
+ 
+2) Для выполнения второго задания были две гистограммы дохода и возраста 
+
+```{r}
+a<-qplot(data=df, income)
+b<-qplot(data=df,age)
+a
+b
+```
+
+
+
+
+3) В таблице ниже, колонка Estimate показываеткоэффициенты стоящие перед ререссорами. Intercept показывает значение B1=11052.36. Коэффициент B2=25.41 означает, что при изменении на один год жизни, насколько меняется доход и тд.Знак перед коэффициентом показывает какое влияние на доход имеют регрессоры. 
+Следующий столбец показывает стандартный ошибки коэфициентов. 
+Четвертый столбец показывает t статистики, которые проверяют гипотезы о незначимости каждого коэффициента.
+Последний столбец проверяет гипотезы о том, что коэффициент равен 0. Согласно таблицы коэффициенты Intercept, educ.high, language.intermediate, language.fluent, subordination.yes, не равны 0, и являются значимыми на 5% уровне.
+```{r}
+v<-coeftest(model)
+v
+```
+Ковариационная матрица выше, не является состоятельной при условии Гетероскедастичности и Автокореляции.
+```{r}
+vv<- coeftest(model, vcov. = vcovHAC(model))
+vv
+```
+4) Ковариационная матрица показывает оценки коэффициентов устойчивые к Гетероскедастичности и Автокореляции.
+
+В таблице с использованием робастных ишибок, изменились коэффициенты значимости.
+При использовании робастных ошибок, коэффициенты Intercept, educ.middle, educ.spmiddle, educ.high, language.intermediate, language.fluent, subordination.yes. В таблице без использования робастных ошибок, значимые на 5% уровне были коэффициенты age, educ.high, language.intermediate, language.fluent, subordination.yes.
+
+Обоснование выбора "своих" переменных:
+Как показывают таблицы, переменные добавленные в модель, знание языка и подчиненные статистически знаничимы. Исходя из логики, люди у которых имеются подчиненные несут больше ответственности и имеют большую доходность. Знания языков влияет на доходность, так как при поиске работы это является конкурентным преимуществом и может лучше оплачиваться.
