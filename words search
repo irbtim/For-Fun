@@ -1,0 +1,73 @@
+Sub Oval1_Click()
+Const strStartDir = "C:\Users\abilkassymov\Desktop"
+Const strSaveDir = "C:\Users\abilkassymov\Desktop"
+Const blInsertNames = True
+Dim r As String, z As Range
+r = InputBox("Data", "Inputs")
+
+Dim wbTarget As New Workbook, wbSrc As Workbook, shSrc As Worksheet, shTarget As Worksheet, arFiles, _
+    i As Integer, stbar As Boolean, clTarget As Range
+On Error Resume Next
+ChDir strStartDir
+On Error GoTo 0
+With Application
+arFiles = .GetOpenFilename(FileFilter:="All files (*.xls*), *.*", _
+      MultiSelect:=True, Title:="Files to Merge")
+If Not IsArray(arFiles) Then End
+Set wbTarget = Workbooks.Add(template:=xlWorksheet)
+Set shTarget = wbTarget.Sheets(1)
+.ScreenUpdating = False
+    stbar = .DisplayStatusBar
+    .DisplayStatusBar = True
+    
+For i = 1 To UBound(arFiles)
+    .StatusBar = "12 " & i & " ?? " & UBound(arFiles)
+    Set wbSrc = Workbooks.Open(arFiles(i), ReadOnly:=True)
+    For Each shSrc In wbSrc.Worksheets
+    
+ 
+If IsNull(shSrc.UsedRange.Text) Then
+Set clTarget = shTarget.Range("A1").Offset(shTarget.Range("A1").SpecialCells(xlCellTypeLastCell).Row, 0)
+
+Set z = Cells.Find(What:=r, After:=ActiveCell, LookIn:=xlFormulas, LookAt:= _
+xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False _
+, SearchFormat:=False)
+If z Is Nothing Then
+
+clTarget = "" & wbSrc.Name
+Set clTarget = clTarget.Offset(0, 1)
+Else
+z.Activate
+a = ActiveCell.Row
+b = ActiveCell.Column
+clTarget = "" & wbSrc.Name
+Set clTarget = clTarget.Offset(0, 1)
+On Error Resume Next
+shSrc.Range(Cells(a, b), Cells(a, b + 1)).Copy clTarget
+End If
+End If
+
+    Next
+    wbSrc.Close False
+    Next
+    .ScreenUpdating = True
+    .DisplayStatusBar = stbar
+    .StatusBar = False
+On Error Resume Next
+
+If Dir(strSaveDir, vbDirectory) = Empty Then MkDir strSaveDir
+ChDir strSaveDir
+On Error GoTo 0
+arFiles = .GetSaveAsFilename("", "Excel Files (*.xls), *.xls", , "Need to save")
+ 
+If VarType(arFiles) = vbBoolean Then
+GoTo save_err
+Else
+    On Error GoTo save_err
+    wbTarget.SaveAs arFiles
+End If
+End
+save_err:
+    MsgBox "Not saved"
+End With
+End Sub
