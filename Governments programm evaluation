@@ -1,0 +1,239 @@
+Sub Button1_Click()
+
+
+
+Dim strFileToOpen As String
+strFileToOpen = Application.GetOpenFilename _
+(Title:="Please choose a file to open", _
+FileFilter:="Excel Files *.xls* (*.xls*),")
+Workbooks.Open Filename:=strFileToOpen
+
+Dim r As Integer
+Rows(17).Insert Shift:=xlDown, CopyOrigin:=xlFormatBelow
+
+Cells(17, 2) = Cells(8, 4)
+Cells(17, 3) = -Cells(5, 4)
+Cells(17, 5) = Cells(17, 3)
+Cells(17, 7) = Cells(5, 4)
+r = InputBox("MR", "Inputs")
+
+Cells(7, 9) = "Discount"
+Cells(8, 9) = "Fair value"
+Cells(9, 9) = "Market Rate"
+Cells(9, 10) = r / 100
+Cells(10, 9) = "Ef-Rate"
+Cells(10, 10) = Cells(9, 10)
+Cells(16, 9) = "Year"
+Cells(17, 9) = 0
+Cells(16, 10) = "DF"
+Cells(17, 10) = 1
+Cells(16, 11) = "PV"
+Cells(17, 11) = -Cells(5, 4)
+Cells(16, 13) = "Coupon accrued"
+Cells(17, 13) = 0
+Cells(16, 14) = "Interest Income"
+Cells(17, 14).Formula = "=R7C10"
+Cells(16, 15) = "Carrying value"
+Cells(17, 15).Formula = "=R8C10"
+Cells(16, 16) = "Amortization"
+Cells(17, 16).Formula = "=R[]C[-2]"
+Cells(16, 17) = "Total PL"
+
+Dim dz As Integer
+For dz = 17 To 125
+If Month(Cells(dz, 2)) = 12 Then
+Rows(dz + 1).Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+Cells(dz + 1, 2).Formula = "=EoMonth(R[-1]C[],0)"
+dz = dz + 1
+End If
+Next dz
+
+Dim d As Integer
+For d = 17 To 125
+If Month(Cells(d, 2)) = 9 Then
+Rows(d + 1).Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+Cells(d + 1, 2).Formula = "=EoMonth(R[-1]C[],0)"
+d = d + 1
+End If
+Next d
+
+Dim ds As Integer
+For ds = 17 To 125
+If Month(Cells(ds, 2)) = 6 Then
+Rows(ds + 1).Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+Cells(ds + 1, 2).Formula = "=EoMonth(R[-1]C[],0)"
+ds = ds + 1
+End If
+Next ds
+
+Dim dds As Integer
+For dds = 17 To 125
+If Month(Cells(dds, 2)) = 3 Then
+Rows(dds + 1).Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+Cells(dds + 1, 2).Formula = "=EoMonth(R[-1]C[],0)"
+dds = dds + 1
+End If
+Next dds
+
+Dim cl As Integer
+For cl = 17 To 200
+If Cells(cl, 2) = 31 Then
+Cells(cl, 2) = Clear
+End If
+Next cl
+
+Dim i As Integer
+For i = 18 To 125
+If Not IsEmpty(Cells(i, 2)) Then
+Cells(i, 7).Formula = "=R[-1]C[]-R[]C[-4]"
+Cells(i, 9).Formula = "=(RC[-7]-R8C4)/360"
+Cells(i, 10).Formula = "=1/(1+R9C10)^RC[-1]"
+Cells(i, 11).Formula = "=RC[-6]*RC[-1]"
+End If
+Next i
+
+Dim lLastRow As Long
+lLastRow = Cells(Rows.Count, 2).End(xlUp).Row
+Cells(lLastRow + 1, 9) = "Total"
+If Cells(lLastRow + 1, 9) = "Total" Then
+Cells(lLastRow + 1, 11).Formula = "=Sum(R17C11:R[-1]C[])"
+Cells(lLastRow + 1, 13).Formula = "=Sum(R17C13:R[-1]C[])"
+Cells(lLastRow + 1, 14).Formula = "=Sum(R18C14:R[-1]C[])"
+Cells(lLastRow + 1, 16).Formula = "=Sum(R18C16:R[-1]C[])"
+Cells(lLastRow + 1, 17).Formula = "=Sum(R18C17:R[-1]C[])"
+Range(Cells(17, 10), Cells(lLastRow + 1, 10)).Select
+Selection.NumberFormat = "_($* #,##0.00_);_($* (#,##0.00);_($* ""-""??_);_(@_)"
+Range(Cells(17, 13), Cells(lLastRow + 1, 17)).Select
+Selection.NumberFormat = "_(* #,##0_);_(* (#,##0);_(* ""-""??_);_(@_)"
+Range(Cells(lLastRow + 1, 2), Cells(lLastRow + 1, 7)).Interior.ColorIndex = 31
+Range(Cells(lLastRow + 1, 9), Cells(lLastRow + 1, 11)).Interior.ColorIndex = 31
+Range(Cells(lLastRow + 1, 13), Cells(lLastRow + 1, 17)).Interior.ColorIndex = 31
+End If
+
+Cells(7, 10) = Cells(lLastRow + 1, 11).Value
+
+
+If Cells(lLastRow, 2).HasFormula = True Then
+Rows(lLastRow).Delete
+End If
+
+Cells(lLastRow + 1, 11).Copy
+Cells(7, 10).PasteSpecial _
+ Operation:=xlPasteSpecialOperationAdd
+Cells(8, 10).Formula = "=D5+J7"
+
+Dim q As Integer
+For q = 18 To 125
+If Not IsEmpty(Cells(q, 2)) Then
+Cells(q, 13).Formula = "=-R[-1]C[-6]*R6C4/360*(R[]C[-11]-R[-1]C[-11])"
+Cells(q, 14).Formula = "=(R[-1]C[+1]*(1+R10C10)^((R[]C[-12]-R[-1]C[-12])/360))-R[-1]C[+1]"
+Cells(q, 15).Formula = "=R[-1]C[]+R[]C[-1]+R[]C[-2]-R[]C[-12]"
+Cells(q, 16).Formula = "=R[]C[-3]+R[]C[-2]"
+Cells(q, 17).Formula = "=-R[]C[-4]+R[]C[-1]"
+End If
+Next q
+
+Dim la As Long
+la = Cells(Rows.Count, 2).End(xlUp).Row
+Cells(la, 15).GoalSeek Goal:=0, ChangingCell:=Range("J10")
+
+
+Columns("B:B").Select
+Selection.NumberFormat = "m/d/yyyy"
+Columns("I:I").Select
+Selection.NumberFormat = "0.00"
+Rows.AutoFit
+Columns.AutoFit
+
+ActiveSheet.UsedRange.Select
+Cells.Select
+    Range("I9").Activate
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = True
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+
+Range("J9:J10").Select
+Selection.NumberFormat = "0.00%"
+Range("J7:J8").Select
+Selection.NumberFormat = "_(* #,##0_);_(* (#,##0);_(* ""-""??_);_(@_)"
+
+Rows(17).Select
+Selection.Font.Bold = True
+Rows(lLastRow).Select
+Selection.Font.Bold = True
+Range("B16:G16").Interior.ColorIndex = 37
+Range("B17:G17").Interior.ColorIndex = 16
+Range("I16:K16").Interior.ColorIndex = 37
+Range("I17:K17").Interior.ColorIndex = 16
+Range("M16:Q16").Interior.ColorIndex = 37
+Range("M17:Q17").Interior.ColorIndex = 16
+
+
+Range("I7:J10").Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlMedium
+    End With
+    Selection.Borders(xlInsideVertical).LineStyle = xlNone
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    Range("I7:I10").Select
+    Selection.Font.Bold = True
+    Range("J7:J10").Select
+    Selection.Font.Bold = True
+Cells(7, 10).Interior.ColorIndex = 16
+Cells(lLastRow + 1, 13).Select
+
+End Sub
+
+
