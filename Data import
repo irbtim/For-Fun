@@ -1,0 +1,14 @@
+Sub Paste()
+Dim r As String, NFile As Long, SelectedFiles() As Variant
+  r = InputBox("Data", "Inputs")
+ 
+  SelectedFiles = Application.GetOpenFilename( _
+      filefilter:="Excel Files (*.xlsx*), *.xlsx*", MultiSelect:=True)
+ 
+  For NFile = LBound(SelectedFiles) To UBound(SelectedFiles)
+    With Workbooks.Open(SelectedFiles(NFile))
+      .ActiveSheet.Range("A1").Value = r
+      .Close savechanges:=True
+    End With
+  Next NFile
+End Sub
