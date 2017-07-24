@@ -1,3 +1,2 @@
 # For-Fun
 some scripts
-http://www.energyprom.kz/a/monitoring/obycha_zolotosoderzhaschih_rud_vyrosla_za_god_na_92_do_59_mln_tonn_za_janvaraprel_2016_proizvodstvo_vyroslo_na_202_do_215_tys_tonn_neobrabotannogo_i_poluobrabotannogo_zolota?mcode=markets
